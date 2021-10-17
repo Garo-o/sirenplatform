@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service("userDetailService")
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
     @Override
