@@ -3,6 +3,7 @@ package com.ordersystem.siren.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -18,4 +19,16 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private String name;
+
+    private boolean activated;
+
+    @ManyToMany
+    @JoinTable(
+            name="userAuthority",
+            joinColumns = {@JoinColumn(name="userId", referencedColumnName = "userId")},
+            inverseJoinColumns = {@JoinColumn(name="authorityName", referencedColumnName = "authorityName")}
+    )
+    private Set<Authority> authorities;
 }
