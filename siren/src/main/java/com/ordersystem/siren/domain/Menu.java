@@ -18,10 +18,13 @@ public class Menu {
     @Column(nullable = false)
     private Long price;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="image")
     private MenuImage image;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cafe")
+    private Cafe cafe;
 
     private Boolean soldOut = false;
 
