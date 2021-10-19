@@ -19,7 +19,7 @@ public class Branch {
     @Embedded
     @Column(nullable = false)
     private Address address;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafeName")
     private Cafe cafe;
