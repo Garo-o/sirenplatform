@@ -23,7 +23,7 @@ public class Menu {
     private MenuImage image;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cafe")
+    @JoinColumn(name = "cafeName")
     private Cafe cafe;
 
     private Boolean soldOut = false;

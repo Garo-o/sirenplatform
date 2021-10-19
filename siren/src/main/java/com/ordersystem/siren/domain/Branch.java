@@ -3,25 +3,24 @@ package com.ordersystem.siren.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Cafe {
+public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cafeId")
+    @Column(name = "branchId")
     private Long id;
     @Column(nullable = false)
     private String name;
-
-
-    @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
-    private List<Menu> menus= new ArrayList<>();
-    @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
-    private List<Branch> branches = new ArrayList<>();
+    @Embedded
+    @Column(nullable = false)
+    private Address address;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cafeName")
+    private Cafe cafe;
 }
