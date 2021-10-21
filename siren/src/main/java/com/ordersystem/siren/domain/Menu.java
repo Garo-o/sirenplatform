@@ -47,8 +47,15 @@ public class Menu {
     //== 판매 중단 ==//
     public void stop(){
         if(this.getMenuState() == MenuState.SOLD_OUT){
-            throw new IllegalStateException("This menu has already SOLDOUT.");
+            throw new IllegalStateException("This menu has already SOLD-OUT.");
         }
         this.setMenuState(MenuState.SOLD_OUT);
+    }
+    //== 판매 재가동 ==//
+    public void start(){
+        if(this.getMenuState()== MenuState.OK){
+            throw new IllegalStateException("This menu has already OK.");
+        }
+        this.setMenuState(MenuState.OK);
     }
 }
