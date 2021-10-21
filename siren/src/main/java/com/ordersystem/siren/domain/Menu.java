@@ -20,6 +20,7 @@ public class Menu {
     @Enumerated(EnumType.STRING)
     private MenuState menuState;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafeName")
     private Cafe cafe;
@@ -44,18 +45,34 @@ public class Menu {
         return menu;
     }
 
-    //== 판매 중단 ==//
+    //== 비즈니스 ==//
+
+    /**
+     * 판매 중단
+     */
     public void stop(){
         if(this.getMenuState() == MenuState.SOLD_OUT){
             throw new IllegalStateException("This menu has already SOLD-OUT.");
         }
         this.setMenuState(MenuState.SOLD_OUT);
     }
-    //== 판매 재가동 ==//
+
+    /**
+     * 판매 재가동
+     */
     public void start(){
         if(this.getMenuState()== MenuState.OK){
             throw new IllegalStateException("This menu has already OK.");
         }
         this.setMenuState(MenuState.OK);
+    }
+
+    /**
+     * 판매가능 확인
+     */
+    public void isOk() {
+        if(this.getMenuState()==MenuState.SOLD_OUT){
+            throw new IllegalStateException("This menu has SOLD OUT");
+        }
     }
 }
