@@ -70,9 +70,10 @@ public class Menu {
     /**
      * 판매가능 확인
      */
-    public void isOk() {
+    public boolean isOk() {
         if(this.getMenuState()==MenuState.SOLD_OUT){
-            throw new IllegalStateException("This menu has SOLD OUT");
+            return false;
         }
+        return true;
     }
 }

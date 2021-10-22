@@ -2,17 +2,15 @@ package com.ordersystem.siren.service;
 
 import com.ordersystem.siren.domain.Authority;
 import com.ordersystem.siren.domain.User;
-import com.ordersystem.siren.domain.UserRepository;
+import com.ordersystem.siren.repository.UserRepository;
 import com.ordersystem.siren.dto.UserDto;
 import com.ordersystem.siren.exception.UserDuplicateException;
-import com.ordersystem.siren.util.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @Service
 @RequiredArgsConstructor
