@@ -1,6 +1,6 @@
 package com.ordersystem.siren.service;
 
-import com.ordersystem.siren.domain.UserRepository;
+import com.ordersystem.siren.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

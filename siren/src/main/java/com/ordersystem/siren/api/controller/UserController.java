@@ -15,11 +15,11 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/signup")
+    @PostMapping("/v1/signup")
     public ResponseEntity<User> signup(@Valid @RequestBody UserDto userDto){
         return ResponseEntity.ok(userService.join(userDto));
     }
