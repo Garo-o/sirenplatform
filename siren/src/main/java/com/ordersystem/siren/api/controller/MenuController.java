@@ -35,7 +35,7 @@ public class MenuController {
         menuService.delete(id);
         return ResponseEntity.ok("OK");
     }
-    @GetMapping("/v1/")
+    @GetMapping("/v1")
     public ResponseEntity<List<Menu>> getAllMenu(){
         return ResponseEntity.ok(menuService.findAll());
     }
