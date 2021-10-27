@@ -44,6 +44,8 @@ public class JwtTokenProvider implements InitializingBean {
                 .map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
         Date validity = new Date((new Date()).getTime()+this.tokenValidTime);
+
+        logger.info(auth.getName()+" logged in");
         return Jwts.builder()
                 .setSubject(auth.getName())
                 .claim(AUTHORITIES_KEY,authorities)
@@ -53,10 +55,8 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token){
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token).getBody();
+        Claims claims = getClaimFromToken(token);
+
         List<? extends GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
@@ -78,5 +78,12 @@ public class JwtTokenProvider implements InitializingBean {
             logger.info("Wrong JWT");
         }
         return false;
+    }
+
+    private Claims getClaimFromToken(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token).getBody();
     }
 }
