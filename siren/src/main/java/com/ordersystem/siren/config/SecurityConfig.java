@@ -4,6 +4,7 @@ import com.ordersystem.siren.jwt.JwtAccessDeniedHandler;
 import com.ordersystem.siren.jwt.JwtAuthenticationEntryPoint;
 import com.ordersystem.siren.jwt.JwtFilter;
 import com.ordersystem.siren.jwt.JwtTokenProvider;
+import com.ordersystem.siren.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -23,7 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final RedisUtil redisUtil;
     @Bean
     public PasswordEncoder getPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -57,11 +58,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/test/**").permitAll()
-                .antMatchers("/api/auth/v1/signin").permitAll()
-                .antMatchers("/api/user/v1/signup").permitAll()
+                .antMatchers("/api/v1/auth/signin", "/api/v1/auth/refresh", "/api/v1/auth/signout","/api/v1/auth/signup").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtTokenProvider, redisUtil), UsernamePasswordAuthenticationFilter.class);
     }
 }

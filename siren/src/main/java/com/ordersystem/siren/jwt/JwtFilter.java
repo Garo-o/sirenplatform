@@ -1,10 +1,12 @@
 package com.ordersystem.siren.jwt;
 
+import com.ordersystem.siren.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,27 +23,28 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
     public static final String AUTHORIZATION_HEAD="Authorization";
+    private static final String GRANT_TYPE = "Bearer";
+
     private final JwtTokenProvider provider;
+    private final RedisUtil redisUtil;
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwt = resolveToken(request);
-        String requestUTI = request.getRequestURI();
 
-        if(StringUtils.hasText(jwt) && provider.validateToken(jwt)){
-            Authentication authentication = provider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("Security Context '{}' saved. uri: {}", authentication.getName(),requestUTI);
-        }
-        else{
-            logger.debug("Invalid JWT token.");
+        if(StringUtils.hasText(jwt) && provider.validateToken(jwt)) {
+            String isNull = (String) redisUtil.get(jwt);
+            if (ObjectUtils.isEmpty(isNull)) {
+                Authentication authentication = provider.getAuthentication(jwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         chain.doFilter(request,response);
     }
 
     private String resolveToken(HttpServletRequest request){
         String header = request.getHeader(AUTHORIZATION_HEAD);
-        if(StringUtils.hasText(header)){
+        if(StringUtils.hasText(header) && header.startsWith(GRANT_TYPE)){
             return header.substring(7);
         }
         return null;
