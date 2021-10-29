@@ -1,5 +1,6 @@
 package com.ordersystem.siren.jwt;
 
+import com.ordersystem.siren.dto.UserRequestDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -27,10 +29,11 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider implements InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String GRANT_TYPE = "Bearer";
+    private static final long accessTokenExpireTime = 1800000;       //30 min
+    private static final long refreshTokenExpireTime = 604800000;    //7 days
     @Value("${jwt.secret}")
     private String secret;
-    @Value("${jwt.token-valid-in-seconds}")
-    private Long tokenValidTime;
     private Key key;
 
     @Override
@@ -39,19 +42,36 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(decode);
     }
 
-    public String createToken(Authentication auth){
+    public UserRequestDto.Token createToken(Authentication auth){
         String authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
-        Date validity = new Date((new Date()).getTime()+this.tokenValidTime);
+        Date now = new Date();
+        Date accessExpireTime = new Date(now.getTime()+accessTokenExpireTime);
+        Date refreshExpireTime = new Date(now.getTime()+refreshTokenExpireTime);
 
-        logger.info(auth.getName()+" logged in");
-        return Jwts.builder()
+        String accessToken = Jwts.builder()
                 .setSubject(auth.getName())
-                .claim(AUTHORITIES_KEY,authorities)
+                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
+                .setIssuedAt(now)
+                .setExpiration(accessExpireTime)
                 .compact();
+
+        String refreshToken = Jwts.builder()
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setIssuedAt(now)
+                .setExpiration(accessExpireTime)
+                .compact();
+
+        logger.info("Refresh token generated token valid to "+ accessExpireTime.toString());
+
+        return UserRequestDto.Token.builder()
+                .grantType(GRANT_TYPE)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .refreshTokenExpireTime(refreshExpireTime)
+                .build();
     }
 
     public Authentication getAuthentication(String token){
@@ -60,8 +80,8 @@ public class JwtTokenProvider implements InitializingBean {
         List<? extends GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        User user = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(user,token,authorities);
+        UserDetails user = new User(claims.getSubject(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(user,"",authorities);
     }
 
     public boolean validateToken(String token){
@@ -69,13 +89,13 @@ public class JwtTokenProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         }catch (SecurityException | MalformedJwtException e){
-            logger.info("Wrong JWT signature.");
+            logger.info("Invalid JWT signature.", e);
         }catch (ExpiredJwtException e){
-            logger.info("Expired JWT");
+            logger.info("Expired ACCESS_JWT", e);
         }catch (UnsupportedJwtException e){
-            logger.info("Unsupported JWT");
+            logger.info("Unsupported JWT", e);
         }catch (IllegalArgumentException e){
-            logger.info("Wrong JWT");
+            logger.info("JWT claims string is empty", e);
         }
         return false;
     }
@@ -85,5 +105,10 @@ public class JwtTokenProvider implements InitializingBean {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token).getBody();
+    }
+
+    public long getExpiration(String token){
+        Date expiration = getClaimFromToken(token).getExpiration();
+        return expiration.getTime() - new Date().getTime();
     }
 }

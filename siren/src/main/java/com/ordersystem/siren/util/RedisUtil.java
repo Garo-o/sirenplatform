@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtil {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void set(String key, Object o, int min){
+    public void set(String key, Object o, long milliseconds){
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(o.getClass()));
-        redisTemplate.opsForValue().set(key, o, min, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, o, milliseconds, TimeUnit.MILLISECONDS);
     }
 
     public Object get(String key){
