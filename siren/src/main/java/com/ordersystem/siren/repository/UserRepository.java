@@ -1,5 +1,6 @@
-package com.ordersystem.siren.domain;
+package com.ordersystem.siren.repository;
 
+import com.ordersystem.siren.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

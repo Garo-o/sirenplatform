@@ -20,6 +20,9 @@ spring:
         default_batch_fetch_size: 10
     defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.H2Dialect
+  redis:
+    host: 127.0.0.1
+    port: 6379
 
 logging:
   level:
@@ -32,4 +35,4 @@ server:
 jwt:
   header: Authorization
   secret: 'aS1hbS1qdXNlb25nLWhvbmctc2FtcGxlLWxvZ2luLXRlc3QtbXVjaC1tb3JlLXRoYW4tNTEyYml0LWlzRW5vdWdodAo='
-  token-valid-in-seconds: 86400
+

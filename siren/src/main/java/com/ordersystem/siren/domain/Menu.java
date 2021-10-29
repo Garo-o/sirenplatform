@@ -5,10 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class Menu {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menuId")
@@ -18,19 +17,63 @@ public class Menu {
     @Column(nullable = false)
     private Long price;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="image")
-    private MenuImage image;
+    @Enumerated(EnumType.STRING)
+    private MenuState menuState;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafeName")
     private Cafe cafe;
 
-    private Boolean soldOut = false;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="image")
+    private MenuImage image;
 
+    //== 연관 관계 ==//
+    public void addImage(MenuImage image){
+        this.setImage(image);
+        image.setMenu(this);
+    }
 
+    //== 생성자 ==//
+    public static Menu createMenu(String name, Long price){
+        Menu menu = new Menu();
+        menu.setName(name);
+        menu.setPrice(price);
+        menu.setMenuState(MenuState.OK);
 
-    public void stopSelling(){this.soldOut=true;}
-    public void changeName(String name){this.name=name;}
-    public void changePrice(Long price){this.price=price;}
+        return menu;
+    }
+
+    //== 비즈니스 ==//
+
+    /**
+     * 판매 중단
+     */
+    public void stop(){
+        if(this.getMenuState() == MenuState.SOLD_OUT){
+            throw new IllegalStateException("This menu has already SOLD-OUT.");
+        }
+        this.setMenuState(MenuState.SOLD_OUT);
+    }
+
+    /**
+     * 판매 재가동
+     */
+    public void start(){
+        if(this.getMenuState()== MenuState.OK){
+            throw new IllegalStateException("This menu has already OK.");
+        }
+        this.setMenuState(MenuState.OK);
+    }
+
+    /**
+     * 판매가능 확인
+     */
+    public boolean isOk() {
+        if(this.getMenuState()==MenuState.SOLD_OUT){
+            return false;
+        }
+        return true;
+    }
 }

@@ -3,6 +3,8 @@ package com.ordersystem.siren.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,4 +33,7 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name="authorityName", referencedColumnName = "authorityName")}
     )
     private Set<Authority> authorities;
+
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders = new ArrayList<>();
 }

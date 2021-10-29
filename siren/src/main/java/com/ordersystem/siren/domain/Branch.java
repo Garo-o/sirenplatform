@@ -3,12 +3,12 @@ package com.ordersystem.siren.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +19,20 @@ public class Branch {
     @Embedded
     @Column(nullable = false)
     private Address address;
-    
+
+    private LocalDate regDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafeName")
     private Cafe cafe;
+
+    //== 생성자 ==//
+    public static Branch createBranch(String name, Address address){
+        Branch branch = new Branch();
+        branch.setName(name);
+        branch.setAddress(address);
+        branch.setRegDate(LocalDate.now());
+        return branch;
+    }
+
 }

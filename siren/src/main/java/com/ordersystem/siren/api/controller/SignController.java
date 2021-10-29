@@ -1,40 +1,84 @@
 package com.ordersystem.siren.api.controller;
 
-import com.ordersystem.siren.dto.LoginDto;
-import com.ordersystem.siren.dto.TokenDto;
-import com.ordersystem.siren.jwt.JwtFilter;
+import com.ordersystem.siren.domain.User;
+import com.ordersystem.siren.dto.*;
 import com.ordersystem.siren.jwt.JwtTokenProvider;
+import com.ordersystem.siren.repository.UserRepository;
+import com.ordersystem.siren.service.UserService;
+import com.ordersystem.siren.util.ErrorUtil;
+import com.ordersystem.siren.util.RedisUtil;
+import com.ordersystem.siren.util.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/v1/auth")
 public class SignController {
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final Response response;
+    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
+    private final ErrorUtil errorUtil;
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@Valid @RequestBody UserRequestDto.SignUp signUp, Errors errors){
+        if(errors.hasErrors()){
+            return response.invalidFields(errorUtil.refineErrors(errors));
+        }
+
+        return response.success(userService.join(signUp),"Sign up success.",HttpStatus.OK);
+    }
+
     @PostMapping("/signin")
-    public ResponseEntity<TokenDto> signin(@Valid @RequestBody LoginDto loginDto){
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                loginDto.getEmail(),loginDto.getPassword()
-        );
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(token);
-        String jwt=jwtTokenProvider.createToken(authentication);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEAD,"Bearer "+jwt);
-        return new ResponseEntity<>(TokenDto.builder().token(jwt).build(),httpHeaders, HttpStatus.OK);
+    public ResponseEntity<?> signin(@Valid @RequestBody UserRequestDto.Login login, Errors errors){
+        if(errors.hasErrors()){
+            return response.invalidFields(errorUtil.refineErrors(errors));
+        }
+
+        UserRequestDto.Token token = userService.login(login);
+        if(token == null){
+            return response.fail("Invalid Email.", HttpStatus.BAD_REQUEST);
+        }
+        return response.success(token, "sign in success.", HttpStatus.OK);
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> signout(@Valid @RequestBody UserRequestDto.Logout logout, Errors errors){
+        if(errors.hasErrors()){
+            return response.invalidFields(errorUtil.refineErrors(errors));
+        }
+        return userService.logout(logout) ?
+                response.success("sign out success.") :
+                response.fail("Invalid access token.", HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@Valid @RequestBody UserRequestDto.NewToken newToken, Errors errors){
+        if(errors.hasErrors()){
+            return response.invalidFields(errorUtil.refineErrors(errors));
+        }
+        
+        if(!jwtTokenProvider.validateToken(newToken.getRefreshToken())){
+            return response.fail("Invalid refresh token.", HttpStatus.BAD_REQUEST);
+        }
+
+        Authentication auth = jwtTokenProvider.getAuthentication(newToken.getAccessToken());
+        String refreshToken = (String)redisUtil.get(auth.getName());
+        if(!refreshToken.equals(newToken.getRefreshToken())){
+            return response.fail("Wrong request.", HttpStatus.BAD_REQUEST);
+        }
+
+        return response.success(userService.reGenerateToken(auth, newToken), "Regenerated token.", HttpStatus.OK);
     }
 }
