@@ -17,7 +17,7 @@ public class MenuImage {
 
     @Column(nullable = false)
     private String fileName;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String filePath;
     @Column(nullable = false)
     private Long fileSize;

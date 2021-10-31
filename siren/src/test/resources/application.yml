@@ -1,0 +1,38 @@
+spring:
+  sql:
+    init:
+      mode: always
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/siren
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 10
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+server:
+  port: 8090
+
+jwt:
+  header: Authorization
+  secret: 'aS1hbS1qdXNlb25nLWhvbmctc2FtcGxlLWxvZ2luLXRlc3QtbXVjaC1tb3JlLXRoYW4tNTEyYml0LWlzRW5vdWdodAo='
+

@@ -34,6 +34,10 @@ public class Menu {
         this.setImage(image);
         image.setMenu(this);
     }
+    public void removeImage(MenuImage image){
+        this.setImage(null);
+        image.setMenu(null);
+    }
 
     //== 생성자 ==//
     public static Menu createMenu(String name, Long price){
@@ -50,21 +54,23 @@ public class Menu {
     /**
      * 판매 중단
      */
-    public void stop(){
+    public boolean stop(){
         if(this.getMenuState() == MenuState.SOLD_OUT){
-            throw new IllegalStateException("This menu has already SOLD-OUT.");
+            return false;
         }
         this.setMenuState(MenuState.SOLD_OUT);
+        return true;
     }
 
     /**
      * 판매 재가동
      */
-    public void start(){
+    public boolean start(){
         if(this.getMenuState()== MenuState.OK){
-            throw new IllegalStateException("This menu has already OK.");
+            return false;
         }
         this.setMenuState(MenuState.OK);
+        return true;
     }
 
     /**
