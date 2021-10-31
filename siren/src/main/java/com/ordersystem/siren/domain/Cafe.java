@@ -38,13 +38,9 @@ public class Cafe {
     }
 
     //== 생성자 ==//
-    public static Cafe createCafe(String name, Object ... objects){
+    public static Cafe createCafe(String name){
         Cafe cafe = new Cafe();
         cafe.setName(name);
-        for (Object object : objects) {
-            if(object instanceof Branch) cafe.branches.add((Branch) object);
-            else if(object instanceof Menu) cafe.menus.add((Menu) object);
-        }
         cafe.setRegDate(LocalDate.now());
         return cafe;
     }
