@@ -1,7 +1,10 @@
 package com.ordersystem.siren.api.controller;
 
+import com.ordersystem.siren.domain.Branch;
 import com.ordersystem.siren.domain.Menu;
 import com.ordersystem.siren.dto.CafeRequestDto;
+import com.ordersystem.siren.dto.CafeResponseDto;
+import com.ordersystem.siren.repository.MenuRepository;
 import com.ordersystem.siren.service.CafeService;
 import com.ordersystem.siren.util.ErrorUtil;
 import com.ordersystem.siren.util.Response;
@@ -17,6 +20,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +42,7 @@ public class ManagerController {
             return response.invalidFields(errorUtil.refineErrors(errors));
         }
 
-        return response.success(cafeService.addCafe(cafeDto), "카페 등록이 완료 되었습니다.", HttpStatus.OK);
+        return response.success(cafeService.addCafe(cafeDto).toResponseCafeDto(), "카페 등록이 완료 되었습니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "지점 추가")
@@ -51,7 +55,7 @@ public class ManagerController {
             return response.invalidFields(errorUtil.refineErrors(errors));
         }
 
-        return response.success(cafeService.addBranch(branchDto), "지점 등록이 완료 되었습니다.", HttpStatus.OK);
+        return response.success(cafeService.addBranch(branchDto).toResponseBranchDto(), "지점 등록이 완료 되었습니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "메뉴 추가")
@@ -63,7 +67,7 @@ public class ManagerController {
         if(errors.hasErrors()){
             return response.invalidFields(errorUtil.refineErrors(errors));
         }
-        return response.success(cafeService.addMenu(menuDto), "메뉴 등록이 완료 되었습니다.", HttpStatus.OK);
+        return response.success(cafeService.addMenu(menuDto).toResponseMenuDto(), "메뉴 등록이 완료 되었습니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "메뉴 변경")
@@ -80,28 +84,23 @@ public class ManagerController {
         return response.success();
     }
 
-    @ApiOperation(value = "전체 메뉴 조회")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
-    })
-    @GetMapping("/menu")
-    public ResponseEntity<?> getAllMenu(@RequestBody @Valid Long cafeId, Errors errors){
-        if(errors.hasErrors()){
-            return response.invalidFields(errorUtil.refineErrors(errors));
-        }
-        return response.success(cafeService.findAllMenu(cafeId), "All menus", HttpStatus.OK);
-    }
-
     @ApiOperation(value = "판매 가능한 전체 메뉴 조회")
     @ApiImplicitParams({
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
     @GetMapping("/menu/ok")
-    public ResponseEntity<?> getAllOKMenu(@RequestBody @Valid Long cafeId, Errors errors){
-        if(errors.hasErrors()){
-            return response.invalidFields(errorUtil.refineErrors(errors));
-        }
-        return response.success(cafeService.findAllOkMenu(cafeId), "All ok menus", HttpStatus.OK);
+    public ResponseEntity<?> getAllOKMenu(){
+        return response.success(cafeService.findAllOkMenu().stream().map(m->m.toResponseMenuDto()).collect(Collectors.toList()), "All ok menus", HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "전체 메뉴 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
+    })
+    @GetMapping("/menu")
+    public ResponseEntity<?> getAllMenu(){
+        return response.success(cafeService.findAllMenu().stream().map(m->m.toResponseMenuDto()).collect(Collectors.toList()),
+                "All menus", HttpStatus.OK);
     }
 
     @ApiOperation(value = "단일 메뉴 조회")
@@ -109,16 +108,12 @@ public class ManagerController {
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
     @GetMapping("/menu/{id}")
-    public ResponseEntity<?> getOne(@PathVariable("id") Long id, @RequestBody @Valid Long cafeId, Errors errors){
-        if(errors.hasErrors()){
-            return response.invalidFields(errorUtil.refineErrors(errors));
-        }
-
-        Menu menu = cafeService.findMenuById(id, cafeId);
+    public ResponseEntity<?> getOne(@PathVariable("id") Long id){
+        Menu menu = cafeService.findMenuById(id);
         if(menu == null){
-            response.fail("",HttpStatus.BAD_REQUEST);
+            response.fail("존재하지 않는 메뉴입니다.",HttpStatus.BAD_REQUEST);
         }
-        return response.success(menu, id+"", HttpStatus.OK);
+        return response.success(menu.toResponseMenuDto(), id+"", HttpStatus.OK);
     }
 
     @ApiOperation(value = "메뉴 판매 중단")
@@ -126,12 +121,8 @@ public class ManagerController {
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
     @GetMapping("/menu/stop/{id}")
-    public ResponseEntity<?> stopMenu(@PathVariable("id") Long id, @RequestBody @Valid Long cafeId, Errors errors){
-        if(errors.hasErrors()){
-            return response.invalidFields(errorUtil.refineErrors(errors));
-        }
-
-        if(cafeService.stopMenu(id, cafeId)) {
+    public ResponseEntity<?> stopMenu(@PathVariable("id") Long id){
+        if(cafeService.stopMenu(id)) {
             return response.success("menu stopped");
         }
         return response.fail("menu already stopped", HttpStatus.BAD_REQUEST);
@@ -142,12 +133,8 @@ public class ManagerController {
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
     @GetMapping("/menu/start/{id}")
-    public ResponseEntity<?> startMenu(@PathVariable("id") Long id, @RequestBody @Valid Long cafeId, Errors errors){
-        if(errors.hasErrors()){
-            return response.invalidFields(errorUtil.refineErrors(errors));
-        }
-
-        if(cafeService.startMenu(id, cafeId)) {
+    public ResponseEntity<?> startMenu(@PathVariable("id") Long id){
+        if(cafeService.startMenu(id)) {
             return response.success("menu started");
         }
         return response.fail("menu already started", HttpStatus.BAD_REQUEST);
@@ -159,7 +146,7 @@ public class ManagerController {
     })
     @GetMapping("/")
     public ResponseEntity<?> getAllCafe(){
-        return response.success(cafeService.findAllCafe(), "모든 카페 조회 내역입니다.", HttpStatus.OK);
+        return response.success(cafeService.findAllCafe().stream().map(c->c.toResponseCafeDto()).collect(Collectors.toList()), "모든 카페 조회 내역입니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "단일 카페 조회")
@@ -168,6 +155,6 @@ public class ManagerController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneCafe(@PathVariable("id") Long id){
-        return response.success(cafeService.findById(id), "모든 카페 조회 내역입니다.", HttpStatus.OK);
+        return response.success(cafeService.findById(id).toResponseCafeDto(), "모든 카페 조회 내역입니다.", HttpStatus.OK);
     }
 }
