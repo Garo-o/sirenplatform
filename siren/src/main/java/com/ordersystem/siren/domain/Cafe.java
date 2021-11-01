@@ -1,11 +1,14 @@
 package com.ordersystem.siren.domain;
 
+import com.ordersystem.siren.dto.CafeResponseDto;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
@@ -23,7 +26,7 @@ public class Cafe {
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
     private List<Menu> menus= new ArrayList<>();
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
-    private List<Branch> branches = new ArrayList<>();
+    private Set<Branch> branches = new HashSet<>();
 
     private LocalDate regDate;
 
@@ -43,5 +46,9 @@ public class Cafe {
         cafe.setName(name);
         cafe.setRegDate(LocalDate.now());
         return cafe;
+    }
+    //== 응답DTO 생성자==//
+    public CafeResponseDto.CafeDto toResponseCafeDto(){
+        return new CafeResponseDto.CafeDto(this);
     }
 }

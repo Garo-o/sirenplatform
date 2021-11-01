@@ -7,6 +7,7 @@ import com.ordersystem.siren.domain.MenuImage;
 import com.ordersystem.siren.dto.CafeRequestDto;
 import com.ordersystem.siren.exception.CafeNotFoundException;
 import com.ordersystem.siren.repository.CafeRepository;
+import com.ordersystem.siren.repository.MenuRepository;
 import com.ordersystem.siren.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CafeService {
     private final CafeRepository cafeRepository;
+    private final MenuRepository menuRepository;
     private final ImageUtil imageUtil;
 
     @Transactional
@@ -63,34 +65,32 @@ public class CafeService {
         return cafeRepository.findById(id).orElseThrow(()-> new CafeNotFoundException("해당하는 카페가 존재하지 않습니다."));
     }
 
-    public List<Menu> findAllMenu(Long id){
-        Cafe cafe = this.findById(id);
-        return cafe.getMenus();
+    public List<Menu> findAllMenu(){
+        return menuRepository.findAll();
     }
-    public List<Menu> findAllOkMenu(Long id){
+
+    public List<Menu> findAllOkMenu(){
         List<Menu> okMenu = new ArrayList<>();
 
-        for (Menu menu : this.findAllMenu(id)) {
+        for (Menu menu : this.findAllMenu()) {
             if(menu.isOk())okMenu.add(menu);
         }
 
         return okMenu;
     }
-    public Menu findMenuById(Long id, Long cafeId) {
-        for (Menu menu : this.findById(cafeId).getMenus()) {
-            if(menu.getId() == id) return menu;
-        }
-        return null;
+    public Menu findMenuById(Long id) {
+        return menuRepository.findById(id).orElse(null);
     }
-
-    public boolean stopMenu(Long id, Long cafeId) {
-        Menu menu = findMenuById(id, cafeId);
+    
+    @Transactional
+    public boolean stopMenu(Long id) {
+        Menu menu = findMenuById(id);
         if(menu == null || !menu.stop()) return false;
         return true;
     }
-
-    public boolean startMenu(Long id, Long cafeId) {
-        Menu menu = findMenuById(id, cafeId);
+    @Transactional
+    public boolean startMenu(Long id) {
+        Menu menu = findMenuById(id);
         if(menu == null || !menu.start()) return false;
         return true;
     }

@@ -1,5 +1,6 @@
 package com.ordersystem.siren.domain;
 
+import com.ordersystem.siren.dto.CafeResponseDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,11 +23,11 @@ public class Menu {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cafeName")
+    @JoinColumn(name = "cafeId")
     private Cafe cafe;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name="image")
+    @JoinColumn(name="imageId")
     private MenuImage image;
 
     //== 연관 관계 ==//
@@ -47,6 +48,10 @@ public class Menu {
         menu.setMenuState(MenuState.OK);
 
         return menu;
+    }
+    //== 응답DTO 생성자==//
+    public CafeResponseDto.MenuDto toResponseMenuDto(){
+        return new CafeResponseDto.MenuDto(this);
     }
 
     //== 비즈니스 ==//

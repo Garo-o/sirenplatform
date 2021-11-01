@@ -1,5 +1,6 @@
 package com.ordersystem.siren.domain;
 
+import com.ordersystem.siren.dto.CafeResponseDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,7 +24,7 @@ public class Branch {
     private LocalDate regDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cafeName")
+    @JoinColumn(name = "cafeId")
     private Cafe cafe;
 
     //== 생성자 ==//
@@ -35,4 +36,8 @@ public class Branch {
         return branch;
     }
 
+    //== 응답DTO 생성자==//
+    public CafeResponseDto.BranchDto toResponseBranchDto(){
+        return new CafeResponseDto.BranchDto(this);
+    }
 }
