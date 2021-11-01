@@ -94,4 +94,8 @@ public class CafeService {
         if(menu == null || !menu.start()) return false;
         return true;
     }
+
+    public List<Cafe> findAllCafe() {
+        return cafeRepository.findAll();
+    }
 }

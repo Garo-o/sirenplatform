@@ -10,7 +10,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/order")
 public class OrderController {
     private final OrderRepository orderRepository;
-    private final MenuRepository menuRepository;
-
-    
 }
