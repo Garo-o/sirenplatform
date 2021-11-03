@@ -1,7 +1,9 @@
 package com.ordersystem.siren.dto;
 
 import com.ordersystem.siren.domain.*;
+import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -9,8 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CafeResponseDto {
-
-    @Data
+    @ToString
     public static class BranchDto{
         private Long id;
         private String name;
@@ -24,8 +25,7 @@ public class CafeResponseDto {
             this.regDate=branch.getRegDate();
         }
     }
-
-    @Data
+    @ToString
     public static class CafeDto{
         private Long id;
         private String name;
@@ -41,8 +41,7 @@ public class CafeResponseDto {
             this.menuDtos = cafe.getMenus().stream().map(m->new MenuDto(m)).collect(Collectors.toList());
         }
     }
-
-    @Data
+    @ToString
     public static class MenuDto{
         private Long id;
         private String name;
@@ -60,8 +59,7 @@ public class CafeResponseDto {
             }
         }
     }
-
-    @Data
+    @ToString
     public static class ImageDto{
         private Long id;
         private String fileName;

@@ -3,12 +3,14 @@ package com.ordersystem.siren.service;
 import com.ordersystem.siren.domain.Authority;
 import com.ordersystem.siren.domain.User;
 import com.ordersystem.siren.dto.UserRequestDto;
+import com.ordersystem.siren.dto.UserResponseDto;
+import com.ordersystem.siren.exception.UserNotFoundException;
+import com.ordersystem.siren.jwt.JwtToken;
 import com.ordersystem.siren.jwt.JwtTokenProvider;
 import com.ordersystem.siren.repository.UserRepository;
 import com.ordersystem.siren.exception.UserDuplicateException;
 import com.ordersystem.siren.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -43,18 +45,20 @@ public class UserService {
     private void checkDuplicateUserEmail(String email) {
         if(userRepository.findByEmail(email).isPresent()) throw new UserDuplicateException(email +" already exist.");
     }
-
-    public UserRequestDto.Token login(UserRequestDto.Login login){
+    public User findById(Long id){
+        return userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("해당 유저가 존재하지 않습니다."));
+    }
+    public JwtToken login(UserRequestDto.Login login){
         if(userRepository.findByEmail(login.getEmail()).isEmpty()){
             return null;
         }
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(token);
-        UserRequestDto.Token tokenDto = jwtTokenProvider.createToken(authentication);
+        JwtToken jwtToken = jwtTokenProvider.createToken(authentication);
 
-        redisUtil.set(authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getRefreshTokenExpireTime().getTime());
-        return tokenDto;
+        redisUtil.set(authentication.getName(), jwtToken.getRefreshToken(), jwtToken.getRefreshTokenExpireTime().getTime());
+        return jwtToken;
     }
 
     public boolean logout(UserRequestDto.Logout logout){
@@ -71,10 +75,10 @@ public class UserService {
         return true;
     }
 
-    public UserRequestDto.Token reGenerateToken(Authentication auth, UserRequestDto.NewToken newToken){
+    public JwtToken reGenerateToken(Authentication auth, UserRequestDto.NewToken newToken){
         redisUtil.set(newToken.getAccessToken(), "blacklist", jwtTokenProvider.getExpiration(newToken.getAccessToken()));
-        UserRequestDto.Token token = jwtTokenProvider.createToken(auth);
-        redisUtil.set(auth.getName(), token.getRefreshToken(), token.getRefreshTokenExpireTime().getTime());
-        return token;
+        JwtToken jwtToken = jwtTokenProvider.createToken(auth);
+        redisUtil.set(auth.getName(), jwtToken.getRefreshToken(), jwtToken.getRefreshTokenExpireTime().getTime());
+        return jwtToken;
     }
 }

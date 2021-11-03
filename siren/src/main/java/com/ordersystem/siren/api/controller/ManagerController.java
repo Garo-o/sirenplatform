@@ -2,10 +2,14 @@ package com.ordersystem.siren.api.controller;
 
 import com.ordersystem.siren.domain.Branch;
 import com.ordersystem.siren.domain.Menu;
+import com.ordersystem.siren.domain.User;
 import com.ordersystem.siren.dto.CafeRequestDto;
 import com.ordersystem.siren.dto.CafeResponseDto;
+import com.ordersystem.siren.jwt.JwtFilter;
+import com.ordersystem.siren.jwt.JwtTokenProvider;
 import com.ordersystem.siren.repository.MenuRepository;
 import com.ordersystem.siren.service.CafeService;
+import com.ordersystem.siren.service.UserService;
 import com.ordersystem.siren.util.ErrorUtil;
 import com.ordersystem.siren.util.Response;
 import io.swagger.annotations.Api;
@@ -16,9 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.stream.Collectors;
 
@@ -29,6 +35,7 @@ import java.util.stream.Collectors;
 @Api(tags = {"2. Cafe"})
 public class ManagerController {
     private final CafeService cafeService;
+    private final UserService userService;
     private final Response response;
     private final ErrorUtil errorUtil;
 
@@ -37,12 +44,12 @@ public class ManagerController {
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
     @PostMapping("/cafe/add")
-    public ResponseEntity<?> addCafe(@RequestBody @Valid CafeRequestDto.CafeDto cafeDto, Errors errors){
+    public ResponseEntity<?> addCafe(@RequestBody @Valid CafeRequestDto.CafeDto cafeDto,Errors errors){
         if(errors.hasErrors()){
             return response.invalidFields(errorUtil.refineErrors(errors));
         }
-
-        return response.success(cafeService.addCafe(cafeDto).toResponseCafeDto(), "카페 등록이 완료 되었습니다.", HttpStatus.OK);
+        User user = userService.findById(cafeDto.getUserId());
+        return response.success(cafeService.addCafe(user, cafeDto.getName(), cafeDto.getBranchDto().toEntity()).toResponseCafeDto(), "카페 등록이 완료 되었습니다.", HttpStatus.OK);
     }
 
     @ApiOperation(value = "지점 추가")

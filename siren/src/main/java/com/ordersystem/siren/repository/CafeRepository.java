@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
-    @Query("select distinct c from Cafe c left join c.menus m left join c.branches b where c.id = :id")
+    @Query("select distinct c from Cafe c left join c.menus m join fetch c.branches b where c.id = :id")
     Optional<Cafe> findById(@Param("id") Long id);
 
-    @Query("select distinct c from Cafe c left join c.menus m left join c.branches b")
+    @Query("select distinct c from Cafe c left join c.menus m join fetch c.branches b")
     List<Cafe> findAll();
 }

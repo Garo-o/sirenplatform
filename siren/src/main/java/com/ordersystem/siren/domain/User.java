@@ -1,11 +1,14 @@
 package com.ordersystem.siren.domain;
 
+import com.ordersystem.siren.dto.UserResponseDto;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Builder
@@ -34,6 +37,10 @@ public class User {
     )
     private Set<Authority> authorities;
 
-    @OneToMany(mappedBy = "user")
-    private List<Order> orders = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private final List<Order> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private final Set<Cafe> cafes = new HashSet<>();
+
 }

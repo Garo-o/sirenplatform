@@ -23,6 +23,10 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderMenu> orderMenus = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "branchId")
+    private Branch branch;
+
     private LocalDate orderDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
@@ -36,16 +40,20 @@ public class Order {
         this.orderMenus.add(orderMenu);
         orderMenu.setOrder(this);
     }
+    public void setBranch(Branch branch){
+        this.branch = branch;
+        branch.getOrders().add(this);
+    }
 
     //== 생성자 ==//
-    public static Order createOrder(User user, OrderMenu... orderMenus){
+    public static Order createOrder(User user, List<OrderMenu> orderMenus){
         Order order = new Order();
         order.setUser(user);
         for (OrderMenu orderMenu : orderMenus) {
             order.addOrderMenu(orderMenu);
         }
         order.setOrderDate(LocalDate.now());
-        order.setOrderStatus(OrderStatus.ORDER);
+        order.setOrderStatus(OrderStatus.READY);
         return order;
     }
 
@@ -54,31 +62,37 @@ public class Order {
     /**
      * 주문 승락
      */
-    public void ok(){
-        if(this.orderStatus!=OrderStatus.ORDER){
-            throw new IllegalStateException("OrderState is not \"ORDER\"");
+    public boolean ok(){
+        if(this.orderStatus!=OrderStatus.READY){
+            return false;
+            //throw new IllegalStateException("OrderState is not \"ORDER\"");
         }
-        this.setOrderStatus(OrderStatus.OK);
+        this.setOrderStatus(OrderStatus.ACCEPT);
+        return true;
     }
 
     /**
      * 주문 취소
      */
-    public void cancle(){
-        if(this.orderStatus!=OrderStatus.ORDER){
-            throw new IllegalStateException("This order can't cancle");
+    public boolean cancle(){
+        if(this.orderStatus!=OrderStatus.READY){
+            return false;
+//            throw new IllegalStateException("This order can't cancle");
         }
         this.setOrderStatus(OrderStatus.CANCLE);
+        return true;
     }
 
     /**
      * 제조 완료
      */
-    public void complete(){
-        if(this.orderStatus!=OrderStatus.OK){
-            throw new IllegalStateException("OrderState is not \"OK\"");
+    public boolean complete(){
+        if(this.orderStatus!=OrderStatus.ACCEPT){
+            return false;
+//            throw new IllegalStateException("OrderState is not \"OK\"");
         }
         this.setOrderStatus(OrderStatus.COMP);
+        return true;
     }
 
     /**

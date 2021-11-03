@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -26,6 +28,9 @@ public class Branch {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cafeId")
     private Cafe cafe;
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();
 
     //== 생성자 ==//
     public static Branch createBranch(String name, Address address){
