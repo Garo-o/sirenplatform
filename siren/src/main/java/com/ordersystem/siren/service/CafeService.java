@@ -1,9 +1,6 @@
 package com.ordersystem.siren.service;
 
-import com.ordersystem.siren.domain.Branch;
-import com.ordersystem.siren.domain.Cafe;
-import com.ordersystem.siren.domain.Menu;
-import com.ordersystem.siren.domain.MenuImage;
+import com.ordersystem.siren.domain.*;
 import com.ordersystem.siren.dto.CafeRequestDto;
 import com.ordersystem.siren.exception.CafeNotFoundException;
 import com.ordersystem.siren.repository.CafeRepository;
@@ -26,8 +23,8 @@ public class CafeService {
     private final ImageUtil imageUtil;
 
     @Transactional
-    public Cafe addCafe(CafeRequestDto.CafeDto cafeDto){
-        Cafe cafe = Cafe.createCafe(cafeDto.getName());
+    public Cafe addCafe(User user, String name, Branch branch){
+        Cafe cafe = Cafe.createCafe(user, name, branch);
         return cafeRepository.save(cafe);
     }
     @Transactional

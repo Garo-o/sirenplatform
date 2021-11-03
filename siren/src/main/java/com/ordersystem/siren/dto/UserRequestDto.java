@@ -7,16 +7,6 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class UserRequestDto {
-
-    @Getter
-    @Builder
-    public static class Token {
-        private String grantType;
-        private String accessToken;
-        private String refreshToken;
-        private Date refreshTokenExpireTime;
-    }
-
     @Getter
     @Builder
     public static class NewToken {

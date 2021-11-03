@@ -1,6 +1,5 @@
 package com.ordersystem.siren.jwt;
 
-import com.ordersystem.siren.dto.UserRequestDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -42,7 +41,7 @@ public class JwtTokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(decode);
     }
 
-    public UserRequestDto.Token createToken(Authentication auth){
+    public JwtToken createToken(Authentication auth){
         String authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
 
@@ -66,7 +65,7 @@ public class JwtTokenProvider implements InitializingBean {
 
         logger.info("Refresh token generated token valid to "+ accessExpireTime.toString());
 
-        return UserRequestDto.Token.builder()
+        return JwtToken.builder()
                 .grantType(GRANT_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

@@ -24,9 +24,12 @@ public class Cafe {
 
 
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
-    private List<Menu> menus= new ArrayList<>();
+    private Set<Menu> menus= new HashSet<>();
     @OneToMany(mappedBy = "cafe", cascade = CascadeType.ALL)
-    private Set<Branch> branches = new HashSet<>();
+    private List<Branch> branches = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="userId")
+    private User user;
 
     private LocalDate regDate;
 
@@ -39,11 +42,17 @@ public class Cafe {
         this.branches.add(branch);
         branch.setCafe(this);
     }
+    public void setUser(User user){
+        this.user = user;
+        user.getCafes().add(this);
+    }
 
     //== 생성자 ==//
-    public static Cafe createCafe(String name){
+    public static Cafe createCafe(User user, String name, Branch branch){
         Cafe cafe = new Cafe();
+        cafe.setUser(user);
         cafe.setName(name);
+        cafe.addBranch(branch);
         cafe.setRegDate(LocalDate.now());
         return cafe;
     }

@@ -2,6 +2,7 @@ package com.ordersystem.siren.util;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -56,6 +57,7 @@ public class Response {
     }
     @Getter
     @Builder
+    @ToString
     private static class Body{
         private int state;
         private String result;

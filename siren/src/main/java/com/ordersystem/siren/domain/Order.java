@@ -23,6 +23,10 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderMenu> orderMenus = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "branchId")
+    private Branch branch;
+
     private LocalDate orderDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
@@ -35,6 +39,10 @@ public class Order {
     public void addOrderMenu(OrderMenu orderMenu){
         this.orderMenus.add(orderMenu);
         orderMenu.setOrder(this);
+    }
+    public void setBranch(Branch branch){
+        this.branch = branch;
+        branch.getOrders().add(this);
     }
 
     //== 생성자 ==//
