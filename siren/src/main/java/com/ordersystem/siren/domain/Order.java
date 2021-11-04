@@ -46,7 +46,7 @@ public class Order {
     }
 
     //== 생성자 ==//
-    public static Order createOrder(User user, List<OrderMenu> orderMenus){
+    public static Order createOrder(User user, List<OrderMenu> orderMenus, Branch branch){
         Order order = new Order();
         order.setUser(user);
         for (OrderMenu orderMenu : orderMenus) {
@@ -54,6 +54,7 @@ public class Order {
         }
         order.setOrderDate(LocalDate.now());
         order.setOrderStatus(OrderStatus.READY);
+        order.setBranch(branch);
         return order;
     }
 

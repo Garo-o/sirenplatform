@@ -24,11 +24,12 @@ public class OrderService {
     @Transactional
     public Order createOrder(OrderRequestDto.CreateOrder createOrder, User user){
         Map<Long, Menu> menus = getOrderMenus(createOrder);
+        Map<Long, Branch> branch = getOrderBranches(createOrder);
 
         List<OrderMenu> orderMenus = createOrder.getMenuDtos()
                 .stream().map(m -> OrderMenu.createOrderMenu(menus.get(m.getMenuId()),m.getPrice(),m.getCount()))
                 .collect(Collectors.toList());
-        return orderRepository.save(Order.createOrder(user, orderMenus));
+        return orderRepository.save(Order.createOrder(user, orderMenus, branch.get(createOrder.getBranchId())));
     }
 
     @Transactional
@@ -63,8 +64,18 @@ public class OrderService {
             if(menuMap.containsKey(key)){
                 resMenus.put(key, menuMap.get(key));
             }
+            else throw new MenuNotFoundException("해당 카페에 존재하지 않는 메뉴입니다.");
         }
         return resMenus;
+    }
+
+    private Map<Long, Branch> getOrderBranches(OrderRequestDto.CreateOrder createOrder) {
+        Cafe cafe = cafeService.findById(createOrder.getCafeId());
+        Map<Long, Branch> resBranches = new HashMap<>();
+        for (Branch branch : cafe.getBranches()) {
+            resBranches.put(branch.getId(),branch);
+        }
+        return resBranches;
     }
 
     public Order findOne(Long id){
