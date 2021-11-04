@@ -38,9 +38,9 @@ public class User {
     private Set<Authority> authorities;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private final List<Order> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private final Set<Cafe> cafes = new HashSet<>();
+    private Set<Cafe> cafes = new HashSet<>();
 
 }
