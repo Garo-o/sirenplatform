@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String jwt = resolveToken(request);
+        String jwt = provider.resolveToken(request);
 
         if(StringUtils.hasText(jwt) && provider.validateToken(jwt)) {
             String isNull = (String) redisUtil.get(jwt);
@@ -40,13 +40,5 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request,response);
-    }
-
-    private String resolveToken(HttpServletRequest request){
-        String header = request.getHeader(AUTHORIZATION_HEAD);
-        if(StringUtils.hasText(header) && header.startsWith(GRANT_TYPE)){
-            return header.substring(7);
-        }
-        return null;
     }
 }
