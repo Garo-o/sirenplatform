@@ -81,14 +81,13 @@ public class ManagerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="Authorization", value = "token", required = true, dataType = "String", paramType = "header")
     })
-    @PostMapping("/menu/update/{id}")
-    public ResponseEntity<?> updateMenu(@PathVariable("id") Long id,@RequestBody @Valid CafeRequestDto.InsertMenu menuDto, Errors errors){
+    @PostMapping("/menu/update")
+    public ResponseEntity<?> updateMenu(@RequestBody @Valid CafeRequestDto.UpdateMenu updateMenu, Errors errors){
         if(errors.hasErrors()){
             return response.invalidFields(errorUtil.refineErrors(errors));
         }
-
-//        menuService.update(id, );
-        return response.success();
+        Menu menu = cafeService.updateMenu(updateMenu);
+        return response.success(new CafeResponseDto.MenuDto(menu),"메뉴 수정 완료.",HttpStatus.OK);
     }
 
     @ApiOperation(value = "판매 가능한 전체 메뉴 조회")

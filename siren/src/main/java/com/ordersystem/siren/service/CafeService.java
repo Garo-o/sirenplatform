@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +95,14 @@ public class CafeService {
 
     public List<Cafe> findAllCafe() {
         return cafeRepository.findAll();
+    }
+
+    public Menu updateMenu(CafeRequestDto.UpdateMenu updateMenu) {
+        Menu menu = this.findMenuById(updateMenu.getMenuId());
+        menu.setName(updateMenu.getNewMenu().getName());
+        menu.setPrice(updateMenu.getNewMenu().getPrice());
+        MenuImage menuImage = imageUtil.updateImage(menu.getImage(), updateMenu.getNewMenu().getImage());
+        menu.setImage(menuImage);
+        return menu;
     }
 }
