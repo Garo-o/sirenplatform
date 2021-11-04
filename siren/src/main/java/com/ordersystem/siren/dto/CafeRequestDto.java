@@ -17,7 +17,7 @@ public class CafeRequestDto {
     public static class CafeDto{
         private Long userId;
         private String name;
-        private BranchDto branchDto;
+        private CafeRequestDto.BranchDto branchDto;
     }
 
     @Getter
@@ -25,7 +25,7 @@ public class CafeRequestDto {
     public static class InsertBranch{
         private Long userId;
         private Long cafeId;
-        private BranchDto branch;
+        private CafeRequestDto.BranchDto branch;
     }
 
     @Getter
@@ -38,19 +38,25 @@ public class CafeRequestDto {
             return Branch.createBranch(this.getName(), this.getAddress());
         }
     }
-
+    @Getter
+    @Builder
+    public static class UpdateMenu{
+        private Long cafeId;
+        private Long menuId;
+        private CafeRequestDto.MenuDto newMenu;
+    }
     @Getter
     @Builder
     public static class InsertMenu{
         private Long cafeId;
-        private MenuDto menu;
+        private CafeRequestDto.MenuDto menu;
     }
     @Getter
     @Builder
     public static class MenuDto {
         private String name;
         private Long price;
-        private ImageDto image;
+        private CafeRequestDto.ImageDto image;
     }
 
     @Getter

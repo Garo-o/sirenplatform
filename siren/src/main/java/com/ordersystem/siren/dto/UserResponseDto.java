@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 public class UserResponseDto {
-    @ToString
+    @ToString@Getter
     public static class UserDto{
         private String email;
         private String name;

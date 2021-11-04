@@ -11,7 +11,7 @@ public class OrderRequestDto {
     public static class CreateOrder{
         private Long cafeId;
         private Long branchId;
-        private List<MenuDto> menuDtos;
+        private List<OrderRequestDto.MenuDto> menuDtos;
         private String memo;
     }
     
@@ -21,5 +21,11 @@ public class OrderRequestDto {
         private Long menuId;
         private Long count;
         private Long price;
+    }
+
+    @Getter
+    @Builder
+    public static class OrderStatus{
+        private Long orderId;
     }
 }

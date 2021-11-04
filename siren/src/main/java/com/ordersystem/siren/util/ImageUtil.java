@@ -1,10 +1,7 @@
 package com.ordersystem.siren.util;
 
-import com.ordersystem.siren.domain.Menu;
 import com.ordersystem.siren.domain.MenuImage;
 import com.ordersystem.siren.dto.CafeRequestDto;
-import lombok.Builder;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,5 +14,10 @@ public class ImageUtil {
         // 이미지 저장로직 추가 예정
 
         return path;
+    }
+
+    public MenuImage updateImage(MenuImage image, CafeRequestDto.ImageDto image1) {
+
+        return image;
     }
 }

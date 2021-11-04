@@ -16,7 +16,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
@@ -109,5 +111,13 @@ public class JwtTokenProvider implements InitializingBean {
     public long getExpiration(String token){
         Date expiration = getClaimFromToken(token).getExpiration();
         return expiration.getTime() - new Date().getTime();
+    }
+
+    public String resolveToken(HttpServletRequest request){
+        String header = request.getHeader(JwtFilter.AUTHORIZATION_HEAD);
+        if(StringUtils.hasText(header) && header.startsWith(GRANT_TYPE)){
+            return header.substring(7);
+        }
+        return null;
     }
 }

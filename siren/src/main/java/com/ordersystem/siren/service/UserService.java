@@ -3,7 +3,6 @@ package com.ordersystem.siren.service;
 import com.ordersystem.siren.domain.Authority;
 import com.ordersystem.siren.domain.User;
 import com.ordersystem.siren.dto.UserRequestDto;
-import com.ordersystem.siren.dto.UserResponseDto;
 import com.ordersystem.siren.exception.UserNotFoundException;
 import com.ordersystem.siren.jwt.JwtToken;
 import com.ordersystem.siren.jwt.JwtTokenProvider;
@@ -80,5 +79,9 @@ public class UserService {
         JwtToken jwtToken = jwtTokenProvider.createToken(auth);
         redisUtil.set(auth.getName(), jwtToken.getRefreshToken(), jwtToken.getRefreshTokenExpireTime().getTime());
         return jwtToken;
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("해당 유저가 존재하지 않습니다."));
     }
 }
