@@ -1,10 +1,6 @@
 package com.ordersystem.siren.dto;
 
-import com.ordersystem.siren.util.UserRole;
 import lombok.*;
-
-import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 public class UserRequestDto {
     @Getter
@@ -34,7 +30,6 @@ public class UserRequestDto {
         private String email;
         private String password;
         private String name;
-
-        private String auth = UserRole.ROLE_USER;
+        private String auth;
     }
 }

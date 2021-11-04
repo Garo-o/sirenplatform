@@ -3,6 +3,7 @@ package com.ordersystem.siren.dto;
 import com.ordersystem.siren.domain.*;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class CafeResponseDto {
     @ToString
+    @Getter
     public static class BranchDto{
         private Long id;
         private String name;
@@ -25,29 +27,29 @@ public class CafeResponseDto {
             this.regDate=branch.getRegDate();
         }
     }
-    @ToString
+    @ToString@Getter
     public static class CafeDto{
         private Long id;
         private String name;
         private LocalDate regDate;
-        private List<BranchDto> branchDtos;
-        private List<MenuDto> menuDtos;
+        private List<CafeResponseDto.BranchDto> branchDtos;
+        private List<CafeResponseDto.MenuDto> menuDtos;
 
         public CafeDto(Cafe cafe){
             this.id=cafe.getId();
-            this.name= cafe.getName();;
+            this.name= cafe.getName();
             this.regDate=cafe.getRegDate();
             this.branchDtos=cafe.getBranches().stream().map(b->new BranchDto(b)).collect(Collectors.toList());
             this.menuDtos = cafe.getMenus().stream().map(m->new MenuDto(m)).collect(Collectors.toList());
         }
     }
-    @ToString
+    @ToString@Getter
     public static class MenuDto{
         private Long id;
         private String name;
         private Long price;
         private String menuState;
-        private ImageDto imageFile = null;
+        private CafeResponseDto.ImageDto imageFile = null;
 
         public MenuDto(Menu menu){
             this.id = menu.getId();
@@ -59,7 +61,7 @@ public class CafeResponseDto {
             }
         }
     }
-    @ToString
+    @ToString@Getter
     public static class ImageDto{
         private Long id;
         private String fileName;
